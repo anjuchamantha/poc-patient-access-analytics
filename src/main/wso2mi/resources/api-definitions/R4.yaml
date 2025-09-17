@@ -1,0 +1,14 @@
+openapi: 3.0.1
+info:
+  title: R4
+  description: API Definition of R4
+  version: 1.0.0
+servers:
+- url: http://localhost:8290/r4
+- url: https://localhost:8253/r4
+paths:
+  /patient:
+    get:
+      responses:
+        default:
+          description: Default response

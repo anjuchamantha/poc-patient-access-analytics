@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/analytics" name="AnalyticsPublisherAPI" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="GET" uri-template="/publish">
+        <inSequence>
+            <log category="INFO" logMessageID="false" logFullPayload="false">
+                <message>ANALYTICS PUBLISH REQUEST RECEIVED</message>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="get"
+                        uri-template="http://localhost:8290/services/MIAnalyticsDataService/publish?resource_type=Patient&amp;patient_id=Patient-102&amp;app_id=mobile-health-app-v1.2&amp;issuer=https://auth.clevercare.com&amp;contract_id=contract-cc-2025-001&amp;state=California&amp;country=USA&amp;status_code=200"
+                    />
+                </endpoint>
+            </call>
+            <log category="INFO" logMessageID="false" logFullPayload="false">
+                <message>DB REQ SENT</message>
+            </log>
+            <respond />
+        </inSequence>
+        <faultSequence>
+        </faultSequence>
+    </resource>
+    <resource methods="GET" uri-template="/patient-count">
+        <inSequence>
+            <log category="INFO" logMessageID="false" logFullPayload="false">
+                <message>PATIENT COUNT REQUEST RECEIVED</message>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="get"
+                        uri-template="http://localhost:8290/services/MIAnalyticsDataService/patient-count?start_time={query.param.start_time}&amp;end_time={query.param.end_time}"
+                    />
+                </endpoint>
+            </call>
+            <log category="INFO" logMessageID="false" logFullPayload="false">
+                <message>PATIENT COUNT DB REQ SENT</message>
+            </log>
+            <respond />
+        </inSequence>
+        <faultSequence>
+        </faultSequence>
+    </resource>
+    <resource methods="GET" uri-template="/multi-request-patient-count">
+        <inSequence>
+            <log category="INFO" logMessageID="false" logFullPayload="false">
+                <message>MULTI REQUEST PATIENT COUNT REQUEST RECEIVED</message>
+            </log>
+            <call>
+                <endpoint>
+                    <http method="get"
+                        uri-template="http://localhost:8290/services/MIAnalyticsDataService/multi-request-patient-count?start_time={query.param.start_time}&amp;end_time={query.param.end_time}"
+                    />
+                </endpoint>
+            </call>
+            <log category="INFO" logMessageID="false" logFullPayload="false">
+                <message>MULTI REQUEST PATIENT COUNT DB REQ SENT</message>
+            </log>
+            <respond />
+        </inSequence>
+        <faultSequence>
+        </faultSequence>
+    </resource>
+</api>

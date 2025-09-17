@@ -1,0 +1,24 @@
+openapi: 3.0.1
+info:
+  title: AnalyticsPublisherAPI
+  description: API Definition of AnalyticsPublisherAPI
+  version: 1.0.0
+servers:
+- url: http://localhost:8290/analytics
+- url: https://localhost:8253/analytics
+paths:
+  /publish:
+    get:
+      responses:
+        default:
+          description: Default response
+  /patient-count:
+    get:
+      responses:
+        default:
+          description: Default response
+  /multi-request-patient-count:
+    get:
+      responses:
+        default:
+          description: Default response

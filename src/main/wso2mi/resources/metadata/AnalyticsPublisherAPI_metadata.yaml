@@ -1,0 +1,10 @@
+---
+key: "AnalyticsPublisherAPI-1.0.0"
+name : "AnalyticsPublisherAPI"
+displayName : "AnalyticsPublisherAPI"
+description: "AnalyticsPublisherAPI"
+version: "1.0.0"
+serviceUrl: "https://{MI_HOST}:{MI_PORT}/analytics"
+definitionType: "OAS3"
+securityType: "BASIC"
+mutualSSLEnabled: false

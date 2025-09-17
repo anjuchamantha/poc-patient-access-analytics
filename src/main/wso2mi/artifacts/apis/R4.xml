@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api name="R4" context="/r4" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="GET" uri-template="/patient">
+        <inSequence>
+            <log category="INFO" logMessageID="false" logFullPayload="false">
+                <message>PATIENT REQ -------- /r4/patient</message>
+            </log>
+            <!-- Current sequences -->
+            <sequence key="publish-analytics" />
+            <payloadFactory media-type="text" template-type="default">
+                <format>Patient Resource</format>
+            </payloadFactory>
+            <respond />
+        </inSequence>
+    </resource>
+    <handlers>
+        <handler class="org.wso2.healthcare.extension.handler.jwt.JWTDecoder">
+            <property name="enableSignatureVerification" value="false" />
+        </handler>
+    </handlers>
+</api>

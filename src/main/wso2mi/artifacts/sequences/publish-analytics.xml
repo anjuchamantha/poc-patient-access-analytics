@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="publish-analytics" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <log category="INFO" logMessageID="false" logFullPayload="false">
+        <message>[SEQUENCE] publish-analytics ---------</message>
+    </log>
+    <property
+        expression="get-property('_OH_INTERNAL_SECURITY_JWT_http://wso2.org/claims/patientId')"
+        name="patient_id" scope="default" type="STRING" />
+    <property
+        expression="get-property('_OH_INTERNAL_SECURITY_JWT_http://wso2.org/claims/apiname')"
+        name="api_name" scope="default" type="STRING" />
+    <property
+        expression="get-property('_OH_INTERNAL_SECURITY_JWT_http://wso2.org/claims/applicationid')"
+        name="application_id" scope="default" type="STRING" />
+    <property
+        expression="get-property('_OH_INTERNAL_SECURITY_JWT_http://wso2.org/claims/applicationname')"
+        name="application_name" scope="default" type="STRING" />
+    <property
+        expression="get-property('_OH_INTERNAL_SECURITY_JWT_http://wso2.org/claims/applicationUUId')"
+        name="application_uuid" scope="default" type="STRING" />
+    <log category="INFO" level="custom">
+        <property expression="$ctx:patient_id" name="patient_id" />
+    </log>
+    <call blocking="false">
+        <endpoint>
+            <!-- <http method="get" uri-template="http://localhost:8290/analytics/publish/" /> -->
+            <http method="get"
+                uri-template="http://localhost:8290/services/MIAnalyticsDataService/publish?resource_type=Patient&amp;patient_id=${patient_id}&amp;app_id=application_name&amp;issuer=https://auth.clevercare.com&amp;contract_id=contract-cc-2025-001&amp;state=California&amp;country=USA&amp;status_code=200"
+            />
+        </endpoint>
+    </call>
+</sequence>

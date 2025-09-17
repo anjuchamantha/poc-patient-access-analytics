@@ -1,0 +1,68 @@
+<data name="MIAnalyticsDataService" serviceNamespace="" serviceGroup="" transports="http https"
+    disableStreaming="true">
+    <description />
+    <config id="MIAnalyticsDataSource">
+        <property name="carbon_datasource_name">MIAnalyticsDataSource</property>
+    </config>
+    <query id="publish_query" useConfig="MIAnalyticsDataSource">
+        <sql>INSERT INTO patient_access_analytics (resource_type, patient_id, app_id,
+            issuer, contract_id, state, country, status_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)</sql>
+        <param name="resource_type" sqlType="STRING" ordinal="1" />
+        <param name="patient_id" sqlType="STRING" ordinal="2" />
+        <param name="app_id" sqlType="STRING" ordinal="3" />
+        <param name="issuer" sqlType="STRING" ordinal="4" />
+        <param name="contract_id" sqlType="STRING" ordinal="5" />
+        <param name="state" sqlType="STRING" ordinal="6" />
+        <param name="country" sqlType="STRING" ordinal="7" />
+        <param name="status_code" sqlType="INTEGER" ordinal="8" />
+    </query>
+    <query id="get_distinct_patient_count_query" useConfig="MIAnalyticsDataSource">
+        <sql>SELECT COUNT(DISTINCT patient_id) as patient_count FROM patient_access_analytics WHERE timestamp BETWEEN :start_time AND :end_time</sql>
+        <param name="start_time" sqlType="STRING" ordinal="1" />
+        <param name="end_time" sqlType="STRING" ordinal="2" />
+        <result element="RESULT">
+            <element column="patient_count" name="PATIENT_COUNT" xsdType="integer" />
+        </result>
+    </query>
+    <query id="get_multi_request_patient_count_query" useConfig="MIAnalyticsDataSource">
+        <sql>SELECT COUNT(*) as multi_access_patients FROM (SELECT patient_id FROM patient_access_analytics WHERE timestamp BETWEEN :start_time AND :end_time GROUP BY patient_id HAVING COUNT(*) > 1) AS patient_count</sql>
+        <param name="start_time" sqlType="STRING" ordinal="1" />
+        <param name="end_time" sqlType="STRING" ordinal="2" />
+        <result element="RESULT">
+            <element column="multi_access_patients" name="MULTI-REQ-PATIENT_COUNT" xsdType="integer" />
+        </result>
+    </query>
+    <resource method="GET" path="/publish" disableStreaming="true">
+        <log category="INFO" logMessageID="false" logFullPayload="false">
+            <message>DB Service</message>
+        </log>
+        <call-query href="publish_query">
+            <with-param name="resource_type" query-param="resource_type" />
+            <with-param name="patient_id" query-param="patient_id" />
+            <with-param name="app_id" query-param="app_id" />
+            <with-param name="issuer" query-param="issuer" />
+            <with-param name="contract_id" query-param="contract_id" />
+            <with-param name="state" query-param="state" />
+            <with-param name="country" query-param="country" />
+            <with-param name="status_code" query-param="status_code" />
+        </call-query>
+    </resource>
+    <resource method="GET" path="/patient-count" disableStreaming="true">
+        <log category="INFO" logMessageID="false" logFullPayload="false">
+            <message>Getting distinct patient count in a given time frame</message>
+        </log>
+        <call-query href="get_distinct_patient_count_query">
+            <with-param name="start_time" query-param="start_time" />
+            <with-param name="end_time" query-param="end_time" />
+        </call-query>
+    </resource>
+    <resource method="GET" path="/multi-request-patient-count" disableStreaming="true">
+        <log category="INFO" logMessageID="false" logFullPayload="false">
+            <message>Getting the number of patients who has accessed the system more than once in a given time frame</message>
+        </log>
+        <call-query href="get_multi_request_patient_count_query">
+            <with-param name="start_time" query-param="start_time" />
+            <with-param name="end_time" query-param="end_time" />
+        </call-query>
+    </resource>
+</data>
