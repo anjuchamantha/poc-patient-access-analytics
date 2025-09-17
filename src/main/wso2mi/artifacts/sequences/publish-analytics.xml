@@ -25,7 +25,7 @@
         <endpoint>
             <!-- <http method="get" uri-template="http://localhost:8290/analytics/publish/" /> -->
             <http method="get"
-                uri-template="http://localhost:8290/services/MIAnalyticsDataService/publish?resource_type=Patient&amp;patient_id=${patient_id}&amp;app_id=application_name&amp;issuer=https://auth.clevercare.com&amp;contract_id=contract-cc-2025-001&amp;state=California&amp;country=USA&amp;status_code=200"
+                uri-template="http://localhost:8290/services/MIAnalyticsDataService/publish?resource_type=${api_name}&amp;patient_id=${patient_id}&amp;app_id=${application_uuid}&amp;issuer=N/A&amp;contract_id=N/A&amp;state=N/A&amp;country=N/A&amp;status_code=200"
             />
         </endpoint>
     </call>
