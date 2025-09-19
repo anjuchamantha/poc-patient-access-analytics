@@ -22,6 +22,47 @@
         <property expression="$ctx:patient_id" name="patient_id" />
     </log>
 
+    <!-- Call external API to get additional parameters -->
+    <!-- Save original message context -->
+    <property name="ORIGINAL_HTTP_METHOD" expression="get-property('axis2', 'HTTP_METHOD')"
+        scope="default" type="STRING" />
+    <property name="ORIGINAL_REST_URL_POSTFIX"
+        expression="get-property('axis2', 'REST_URL_POSTFIX')" scope="default" type="STRING" />
+
+    <!-- Set properties for external API call -->
+    <property name="HTTP_METHOD" value="GET" scope="axis2" type="STRING" />
+    <property name="REST_URL_POSTFIX" value="" scope="axis2" type="STRING" />
+    <property name="messageType" value="application/json" scope="axis2" type="STRING" />
+
+    <call blocking="true">
+        <endpoint>
+            <address uri="https://68ccefe3da4697a7f3040389.mockapi.io/moreinfo/more/2" />
+        </endpoint>
+    </call>
+
+    <!-- Restore original context -->
+    <property name="HTTP_METHOD" expression="$ctx:ORIGINAL_HTTP_METHOD" scope="axis2" type="STRING" />
+    <property name="REST_URL_POSTFIX" expression="$ctx:ORIGINAL_REST_URL_POSTFIX" scope="axis2"
+        type="STRING" />
+
+
+    <!-- Extract contract_id and state from the response -->
+    <property expression="json-eval($.contract_id)" name="contract_id" scope="default" type="STRING" />
+    <property expression="json-eval($.state)" name="state" scope="default" type="STRING" />
+    <property expression="json-eval($.country)" name="country" scope="default" type="STRING" />
+
+    <!-- Log the full response for debugging -->
+    <log category="INFO" level="full">
+        <property name="External API Response" expression="$body" />
+    </log>
+
+    <log category="INFO" level="custom">
+        <property expression="$ctx:contract_id" name="external_contract_id" />
+        <property expression="$ctx:state" name="external_state" />
+        <property expression="$ctx:country" name="external_country" />
+        <property expression="$ctx:issuer" name="external_issuer" />
+    </log>
+
     <!-- Build dynamic query string based on non-null values -->
     <property name="query_params" value="" scope="default" type="STRING" />
 
@@ -61,6 +102,74 @@
                 </then>
                 <else>
                     <property expression="concat('app_id=', $ctx:application_uuid)"
+                        name="query_params" scope="default" type="STRING" />
+                </else>
+            </filter>
+        </then>
+    </filter>
+
+    <!-- Add contract_id if not null (from external API) -->
+    <filter xpath="$ctx:contract_id != '' and $ctx:contract_id != 'null'">
+        <then>
+            <filter xpath="$ctx:query_params != ''">
+                <then>
+                    <property
+                        expression="concat($ctx:query_params, '&amp;contract_id=', $ctx:contract_id)"
+                        name="query_params" scope="default" type="STRING" />
+                </then>
+                <else>
+                    <property expression="concat('contract_id=', $ctx:contract_id)"
+                        name="query_params" scope="default" type="STRING" />
+                </else>
+            </filter>
+        </then>
+    </filter>
+
+    <!-- Add state if not null (from external API) -->
+    <filter xpath="$ctx:state != '' and $ctx:state != 'null'">
+        <then>
+            <filter xpath="$ctx:query_params != ''">
+                <then>
+                    <property
+                        expression="concat($ctx:query_params, '&amp;state=', $ctx:state)"
+                        name="query_params" scope="default" type="STRING" />
+                </then>
+                <else>
+                    <property expression="concat('state=', $ctx:state)"
+                        name="query_params" scope="default" type="STRING" />
+                </else>
+            </filter>
+        </then>
+    </filter>
+
+    <!-- Add country if not null (from external API) -->
+    <filter xpath="$ctx:country != '' and $ctx:country != 'null'">
+        <then>
+            <filter xpath="$ctx:query_params != ''">
+                <then>
+                    <property
+                        expression="concat($ctx:query_params, '&amp;country=', $ctx:country)"
+                        name="query_params" scope="default" type="STRING" />
+                </then>
+                <else>
+                    <property expression="concat('country=', $ctx:country)"
+                        name="query_params" scope="default" type="STRING" />
+                </else>
+            </filter>
+        </then>
+    </filter>
+
+    <!-- Add issuer if not null (from external API) -->
+    <filter xpath="$ctx:issuer != '' and $ctx:issuer != 'null'">
+        <then>
+            <filter xpath="$ctx:query_params != ''">
+                <then>
+                    <property
+                        expression="concat($ctx:query_params, '&amp;issuer=', $ctx:issuer)"
+                        name="query_params" scope="default" type="STRING" />
+                </then>
+                <else>
+                    <property expression="concat('issuer=', $ctx:issuer)"
                         name="query_params" scope="default" type="STRING" />
                 </else>
             </filter>
