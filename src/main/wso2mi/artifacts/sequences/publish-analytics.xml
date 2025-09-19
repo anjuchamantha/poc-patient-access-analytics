@@ -21,12 +21,77 @@
     <log category="INFO" level="custom">
         <property expression="$ctx:patient_id" name="patient_id" />
     </log>
+
+    <!-- Build dynamic query string based on non-null values -->
+    <property name="query_params" value="" scope="default" type="STRING" />
+
+    <!-- Always add resource_type if api_name is not null -->
+    <filter xpath="$ctx:api_name != '' and $ctx:api_name != 'null'">
+        <then>
+            <property expression="concat('resource_type=', $ctx:api_name)" name="query_params"
+                scope="default" type="STRING" />
+        </then>
+    </filter>
+
+    <!-- Add patient_id if not null -->
+    <filter xpath="$ctx:patient_id != '' and $ctx:patient_id != 'null'">
+        <then>
+            <filter xpath="$ctx:query_params != ''">
+                <then>
+                    <property
+                        expression="concat($ctx:query_params, '&amp;patient_id=', $ctx:patient_id)"
+                        name="query_params" scope="default" type="STRING" />
+                </then>
+                <else>
+                    <property expression="concat('patient_id=', $ctx:patient_id)"
+                        name="query_params" scope="default" type="STRING" />
+                </else>
+            </filter>
+        </then>
+    </filter>
+
+    <!-- Add application_uuid if not null -->
+    <filter xpath="$ctx:application_uuid != '' and $ctx:application_uuid != 'null'">
+        <then>
+            <filter xpath="$ctx:query_params != ''">
+                <then>
+                    <property
+                        expression="concat($ctx:query_params, '&amp;app_id=', $ctx:application_uuid)"
+                        name="query_params" scope="default" type="STRING" />
+                </then>
+                <else>
+                    <property expression="concat('app_id=', $ctx:application_uuid)"
+                        name="query_params" scope="default" type="STRING" />
+                </else>
+            </filter>
+        </then>
+    </filter>
+
+    <!-- Add status_code (you might want to make this dynamic too) -->
+    <property name="status_code" value="200" scope="default" type="STRING" />
+    <filter xpath="$ctx:query_params != ''">
+        <then>
+            <property expression="concat($ctx:query_params, '&amp;status_code=', $ctx:status_code)"
+                name="query_params" scope="default" type="STRING" />
+        </then>
+        <else>
+            <property expression="concat('status_code=', $ctx:status_code)" name="query_params"
+                scope="default" type="STRING" />
+        </else>
+    </filter>
+
+    <!-- Build final URL -->
+    <property
+        expression="concat('http://localhost:8290/services/MIAnalyticsDataService/publish?', $ctx:query_params)"
+        name="uri.var.final_url" scope="default" type="STRING" />
+
+    <log category="INFO" level="custom">
+        <property expression="$ctx:uri.var.final_url" name="final_url" />
+    </log>
+
     <call blocking="false">
         <endpoint>
-            <!-- <http method="get" uri-template="http://localhost:8290/analytics/publish/" /> -->
-            <http method="get"
-                uri-template="http://localhost:8290/services/MIAnalyticsDataService/publish?resource_type=${api_name}&amp;patient_id=${patient_id}&amp;app_id=${application_uuid}&amp;issuer=N/A&amp;contract_id=N/A&amp;state=N/A&amp;country=N/A&amp;status_code=200"
-            />
+            <http method="get" uri-template="{uri.var.final_url}" />
         </endpoint>
     </call>
 </sequence>
